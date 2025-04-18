@@ -1,0 +1,60 @@
+scoring_engine/
+│
+├── main.py                    # Entry point to start FastAPI app
+├── requirements.txt           # List of project dependencies
+│
+├── app/                       # Core application directory
+│   ├── __init__.py            # Make 'app' a Python package
+│   │
+│   ├── api/                   # API endpoints
+│   │   ├── __init__.py
+│   │   ├── v1/                # Version 1 of APIs
+│   │   │   ├── __init__.py
+│   │   │   ├── scorecard.py   # APIs for creating and managing scorecards
+│   │   │   ├── scoring.py     # APIs for calculating scores
+│   │   │   ├── rules.py       # APIs for managing rules
+│   │   │   └── variables.py   # APIs for handling variables
+│   │
+│   ├── models/                # Database models (SQLAlchemy)
+│   │   ├── __init__.py
+│   │   ├── scorecard.py       # Models for ScoreCard table
+│   │   ├── rules.py           # Models for Rules table
+│   │   ├── variables.py       # Models for Variables table
+│   │   └── ...                # Other table models
+│   │
+│   ├── schemas/               # Pydantic schemas for input/output validation
+│   │   ├── __init__.py
+│   │   ├── scorecard.py       # Schemas for ScoreCard APIs
+│   │   ├── rules.py           # Schemas for Rules APIs
+│   │   └── ...
+│   │
+│   ├── services/              # Business logic and helper functions
+│   │   ├── __init__.py
+│   │   ├── scorecard_service.py  # Logic for processing scorecards
+│   │   ├── excel_service.py      # Logic to upload/process Excel files
+│   │   └── scoring_service.py    # Logic to compute scores
+│   │
+│   ├── db/                    # Database connection
+│   │   ├── __init__.py
+│   │   ├── session.py         # SQLAlchemy session setup
+│   │   └── models.py          # Table relationships
+│   │
+│   ├── utils/                 # Utility functions (e.g., Excel handling)
+│   │   ├── __init__.py
+│   │   └── file_handler.py    # File upload and validation utilities
+│   │
+│   └── config/                # Configuration files
+│       ├── __init__.py
+│       └── settings.py        # Project settings and constants
+│
+├── uploads/                   # Directory for Excel file uploads
+│   ├── scorecards/            # Store uploaded Excel files for scorecards
+│   └── temp/                  # Temporary file processing
+│
+├── tests/                     # Unit and integration tests
+│   ├── __init__.py
+│   ├── test_scorecard.py      # Tests for scorecard APIs
+│   ├── test_rules.py          # Tests for rules APIs
+│   └── ...
+│
+└── README.md                  # Project overview and documentation
