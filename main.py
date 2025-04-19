@@ -1,16 +1,25 @@
 from fastapi import FastAPI
-from app.api.v1.rules import router as rules_router
-from app.api.v1.variables import router as variables_router
-from app.api.v1.scorecards import router as scorecards_router
+from app.api.v1.variables import router as variables_router  # Import your variables router
+from app.db.session import engine, Base  # your database engine
 
-app = FastAPI(title="Credit Scoring Engine API", version="1.0")
+# Create all tables
+Base.metadata.create_all(bind=engine)
 
-# Include API routers
-app.include_router(rules_router, prefix="/api/v1", tags=["Rules"])
-app.include_router(variables_router, prefix="/api/v1", tags=["Variables"])
-app.include_router(scorecards_router,  prefix="/api/v1", tags=["Scorecards"])
 
-# Root endpoint
+# Initialize FastAPI app with metadata
+app = FastAPI(
+    title="Credit Scoring Engine API",  # App title for Swagger UI
+    version="1.0"                        # API version
+)
+
+# Register the variables router under versioned API path
+app.include_router(
+    variables_router,
+    prefix="/api/v1",        # Full path will be /api/v1/variables
+    tags=["Variables"]       # Swagger UI grouping
+)
+
+# Root health check / welcome endpoint
 @app.get("/")
 def root():
     return {"message": "Welcome to the Credit Scoring Engine API!"}

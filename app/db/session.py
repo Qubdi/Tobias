@@ -1,25 +1,36 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-
-
+from sqlalchemy.orm import sessionmaker, declarative_base
+from contextlib import contextmanager
 
 # SQL Server connection string using Windows Authentication
-DATABASE_URL = (
-    "mssql+pyodbc://@10.195.103.194/WH_Propensity"
-    "?driver=SQL+Server&trusted_connection=yes"
+DATABASE_URL = "sqlite:///C:/Users/Anri/Desktop/Qubdi/Qubdi-Tobias/VaraiblesTest.sqlite"
+
+
+# Create SQLAlchemy engine
+engine = create_engine(
+    DATABASE_URL,
+    echo=False,              # Set to True for SQL debugging
+    future=True              # SQLAlchemy 2.x style
 )
 
-# Create engine and session
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Create session factory
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
 
-
-# Define Base once for all models
+# Declare base for models
 Base = declarative_base()
 
-# Dependency to get a database session
+# Dependency for FastAPI or general DB access
 def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+# Context manager for scripts/tests
+@contextmanager
+def get_db_context():
     db = SessionLocal()
     try:
         yield db

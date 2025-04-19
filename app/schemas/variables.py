@@ -1,16 +1,43 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
-# Request model for creating/updating a variable
+
 class VariableCreate(BaseModel):
-    VariableName: str
-    Logic: Optional[str] = None
-    VariableType: Optional[str] = None
-    DBType: Optional[str] = None
+    name: str
+    description: Optional[str]
+    calculation_type: str
+    created_by: str
+    sql_script: str
 
-# Response model for retrieving variables
-class VariableResponse(VariableCreate):
-    id: int  # Primary key
 
-    class Config:
-        orm_mode = True  # Allows ORM to work with Pydantic models
+class VariableUpdate(BaseModel):
+    sql_script: str
+    change_reason: str
+    edited_by: str
+
+
+class VariableResponse(BaseModel):
+    id: int
+    name: str
+    description: Optional[str]
+    calculation_type: str
+    is_active: bool
+    created_by: Optional[str]
+    created_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class VariableResultResponse(BaseModel):
+    application_id: str
+    variable_id: int
+    value: str
+    calculated_by: Optional[str]
+    calculated_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }

@@ -1,75 +1,100 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from app.db import get_db
+from app.models import Variable, VariableVersion
+from app.schemas import VariableCreate, VariableUpdate, VariableResponse
+from datetime import datetime
 
-from app.db.session import get_db
-from app.models.variables import Variables
-from app.schemas.variables import VariableCreate, VariableResponse
-
-router = APIRouter()
-
-# Create a new variable
-@router.post("/variables/", response_model=VariableResponse)
-def create_variable(variable: VariableCreate, db: Session = Depends(get_db)):
-    db_variable = Variables(**variable.dict())
-    db.add(db_variable)
-    db.commit()
-    db.refresh(db_variable)
-    return db_variable
+router = APIRouter(prefix="/variables", tags=["Variables"])
 
 
 
+@router.post("/", response_model=VariableResponse)
+def create_variable(payload: VariableCreate, db: Session = Depends(get_db)):
+    # Check if variable with the same name already exists
+    if db.query(Variable).filter_by(name=payload.name).first():
+        raise HTTPException(status_code=400, detail="Variable already exists")
 
-# Fetch all variables or a specific one by ID
-@router.get("/variables/", response_model=List[VariableResponse])
-def get_variables(
-    variable_id: Optional[List[int]] = Query(None, description="List of variable IDs to fetch"),
-    db: Session = Depends(get_db)
-):
-    query = db.query(Variables)
-    if variable_id:
-        query = query.filter(Variables.id.in_(variable_id))  # Filter for matching IDs
+    # Create the Variable object
+    var = Variable(
+        name=payload.name,
+        description=payload.description,
+        calculation_type=payload.calculation_type,
+        created_by=payload.created_by,
+    )
+    db.add(var)      # Add to session
+    db.flush()       # Ensure var.id is available before committing
 
-    variables = query.all()
-    if not variables:
-        raise HTTPException(status_code=404, detail="No variables found matching the given IDs")
-
-    return variables
-
-
-
-
-# Update a specific variable
-@router.put("/variables/", response_model=VariableResponse)
-def update_variable(
-    variable_id: int = Query(..., description="The ID of the variable to update"),
-    updated_data: VariableCreate = ...,
-    db: Session = Depends(get_db)
-):
-    db_variable = db.query(Variables).filter(Variables.id == variable_id).first()
-    if not db_variable:
-        raise HTTPException(status_code=404, detail=f"Variable with ID {variable_id} not found")
-
-    for key, value in updated_data.dict(exclude_unset=True).items():
-        setattr(db_variable, key, value)
-
-    db.commit()
-    db.refresh(db_variable)
-    return db_variable
+    # Add the first version of the variable's SQL
+    version = VariableVersion(
+        variable_id=var.id,
+        version_number=1,
+        sql_script=payload.sql_script,
+        change_reason="Initial version",
+        edited_by=payload.created_by,
+    )
+    db.add(version)  # Add version record
+    db.commit()      # Commit both inserts
+    db.refresh(var)  # Refresh the variable object to get full state
+    return var       # Return the new variable
 
 
 
+@router.get("/", response_model=list[VariableResponse])
+def get_all_variables(db: Session = Depends(get_db)):
+    # Query all variables where is_active is True
+    return db.query(Variable).filter_by(is_active=True).all()
 
-# Delete a specific variable
-@router.delete("/variables/", response_model=dict)
-def delete_variable(
-    variable_id: int = Query(..., description="The ID of the variable to delete"),
-    db: Session = Depends(get_db)
-):
-    db_variable = db.query(Variables).filter(Variables.id == variable_id).first()
-    if not db_variable:
-        raise HTTPException(status_code=404, detail=f"Variable with ID {variable_id} not found")
 
-    db.delete(db_variable)
-    db.commit()
-    return {"detail": f"Variable with ID {variable_id} deleted successfully"}
+
+@router.get("/{variable_id}", response_model=VariableResponse)
+def get_variable(variable_id: int, db: Session = Depends(get_db)):
+    # Try to find variable by ID
+    var = db.query(Variable).filter_by(id=variable_id).first()
+    if not var:
+        raise HTTPException(status_code=404, detail="Variable not found")
+    return var
+
+
+
+@router.put("/{variable_id}", response_model=VariableResponse)
+def update_variable(variable_id: int, payload: VariableUpdate, db: Session = Depends(get_db)):
+    # Find the active variable
+    var = db.query(Variable).filter_by(id=variable_id, is_active=True).first()
+    if not var:
+        raise HTTPException(status_code=404, detail="Variable not found")
+
+    # Get the latest version number
+    latest = (
+        db.query(VariableVersion)
+        .filter_by(variable_id=var.id)
+        .order_by(VariableVersion.version_number.desc())
+        .first()
+    )
+
+    # Add a new version with incremented version_number
+    new_version = VariableVersion(
+        variable_id=var.id,
+        version_number=latest.version_number + 1,
+        sql_script=payload.sql_script,
+        change_reason=payload.change_reason,
+        edited_by=payload.edited_by,
+    )
+    db.add(new_version)  # Add to session
+    db.commit()          # Commit the update
+    return var           # Return the updated variable
+
+
+
+
+@router.delete("/{variable_id}")
+def delete_variable(variable_id: int, db: Session = Depends(get_db)):
+    # Look up the variable by ID
+    var = db.query(Variable).filter_by(id=variable_id).first()
+    if not var:
+        raise HTTPException(status_code=404, detail="Variable not found")
+
+    # Soft delete: mark as inactive
+    var.is_active = False
+    db.commit()  # Save change to DB
+    return {"message": f"Variable {var.name} marked as inactive"}
