@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.api.v1.variables import router as variables_router  # Import your variables router
-from app.db.session import engine, Base  # your database engine
+from backend.app.api.v1.variables import router as variables_router  # Import your variables router
+from backend.app.db.session import engine, Base  # your database engine
 
 # Create all tables
 Base.metadata.create_all(bind=engine)

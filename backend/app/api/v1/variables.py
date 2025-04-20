@@ -1,13 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.db import get_db
-from app.models import Variable, VariableVersion
-from app.schemas import VariableCreate, VariableUpdate, VariableResponse
+from backend.app.db import get_db
+from backend.app.models import Variable, VariableVersion
+from backend.app.schemas import VariableCreate, VariableUpdate, VariableResponse
 from sqlalchemy import text, func
 from pydantic import BaseModel
 from typing import List
-
-from datetime import datetime
 
 router = APIRouter(prefix="/variables", tags=["Variables"])
 
