@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.db import get_db
-from app.models import Variable, VariableVersion
-from app.schemas import VariableCreate, VariableUpdate, VariableResponse
-from datetime import datetime
+from backend.app.db import get_db
+from backend.app.models import Variable, VariableVersion
+from backend.app.schemas import VariableCreate, VariableUpdate, VariableResponse
+from sqlalchemy import text, func
+from pydantic import BaseModel
+from typing import List
 
 router = APIRouter(prefix="/variables", tags=["Variables"])
 
@@ -98,3 +100,94 @@ def delete_variable(variable_id: int, db: Session = Depends(get_db)):
     var.is_active = False
     db.commit()  # Save change to DB
     return {"message": f"Variable {var.name} marked as inactive"}
+
+
+
+class VariableCalcRequest(BaseModel):
+    app_id: str
+    variable_ids: List[int]
+
+@router.post("/calculate-variables")
+def calculate_selected_variables(
+    payload: VariableCalcRequest,
+    db: Session = Depends(get_db)
+):
+    if not payload.variable_ids:
+        raise HTTPException(status_code=400, detail="No variable_ids provided.")
+
+    app_id = payload.app_id
+
+    # Get latest versions
+    subquery = (
+        db.query(
+            VariableVersion.variable_id,
+            func.max(VariableVersion.version_number).label("max_version")
+        )
+        .filter(VariableVersion.variable_id.in_(payload.variable_ids))
+        .group_by(VariableVersion.variable_id)
+        .subquery()
+    )
+
+    latest_versions = (
+        db.query(VariableVersion)
+        .join(
+            subquery,
+            (VariableVersion.variable_id == subquery.c.variable_id) &
+            (VariableVersion.version_number == subquery.c.max_version)
+        )
+        .all()
+    )
+
+    if not latest_versions:
+        raise HTTPException(status_code=404, detail="No variable versions found.")
+
+    # Prepare CTEs
+    cte_blocks = []
+    result_selects = []
+    execution_selects = []
+
+    for var in latest_versions:
+        var_id = var.variable_id
+        sql_code = var.sql_script.strip().rstrip(";")  # ✅ strip trailing semicolon
+
+        cte_blocks.append(f"""
+        var_{var_id} AS (
+            SELECT
+                :app_id AS application_id,
+                {var_id} AS variable_id,
+                CAST((
+                    {sql_code}
+                ) AS TEXT) AS value
+        )
+        """.strip())
+
+        result_selects.append(f"SELECT *, 'system' AS calculated_by FROM var_{var_id}")
+        execution_selects.append(f"""
+        SELECT
+            :app_id AS application_id,
+            {var_id} AS variable_id,
+            'system' AS executed_by,
+            value AS result
+        FROM var_{var_id}
+        """.strip())
+
+    cte_sql = ",\n".join(cte_blocks)
+    results_sql = "\nUNION ALL\n".join(result_selects)
+
+    # 1️⃣ INSERT into variable_results
+    sql_results = f"""
+    WITH
+    {cte_sql}
+    INSERT INTO variable_results (application_id, variable_id, value, calculated_by)
+    {results_sql};
+    """
+
+    # Execute both
+    db.execute(text(sql_results), {"app_id": app_id})
+    db.commit()
+
+    return {
+        "status": "success",
+        "application_id": app_id,
+        "calculated_variables": [v.variable_id for v in latest_versions]
+    }

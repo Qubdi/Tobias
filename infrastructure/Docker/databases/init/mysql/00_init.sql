@@ -1,0 +1,4 @@
+CREATE DATABASE IF NOT EXISTS tobias;
+CREATE USER IF NOT EXISTS 'tobias_user'@'%' IDENTIFIED BY 'tobias_tobias';
+GRANT ALL PRIVILEGES ON tobias.* TO 'tobias_user'@'%';
+FLUSH PRIVILEGES;

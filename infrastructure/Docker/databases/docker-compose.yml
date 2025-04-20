@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_tobias
+    restart: always
+    environment:
+      POSTGRES_DB: tobias
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init/postgres:/docker-entrypoint-initdb.d
+
+  mysql:
+    image: mysql:8.3
+    container_name: mysql_tobias
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init/mysql:/docker-entrypoint-initdb.d
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-lts
+    container_name: mssql_tobias
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "StrongP@ssword123"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+      - ./init/mssql:/init
+  command: >
+    bash -c "
+      /opt/mssql/bin/sqlservr &
+      sleep 30 &&
+      /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P StrongP@ssword123 -i /init/init.sql &&
+      /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P StrongP@ssword123 -i /init/01_create_tables.sql &&
+      tail -f /dev/null
+    "
+
+volumes:
+  postgres_data:
+  mysql_data:
+  mssql_data:
