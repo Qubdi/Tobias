@@ -42,3 +42,4 @@ Tobias/
 ├── .env.example                         # Environment variable template
 ├── .gitignore
 └── README.md                            # System documentation
+
