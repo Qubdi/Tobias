@@ -165,4 +165,5 @@ cython_debug/
 *.json*
 *.parquet*
 *.pickle*
+*.pkl*
 *.csv*
