@@ -26,6 +26,27 @@ services:
       - ./init/mysql:/docker-entrypoint-initdb.d
 
 
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    build: .
+    container_name: mssql_tobias
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourStrong@Passw0rd"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    command: >
+      /bin/bash -c "
+        /opt/mssql/bin/sqlservr & 
+        /init/01-init.sh;
+        wait
+      "
+      
+
 volumes:
   postgres_data:
   mysql_data:
+  mssql_data:
