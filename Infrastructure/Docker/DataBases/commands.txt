@@ -1,12 +1,7 @@
-docker compose down -v   # remove volume + container
-docker compose up -d     # restart clean with init.sql
+# For the very first run (initial setup):
+docker compose build --no-cache    # Build images defined in docker-compose.yml from scratch without using cache.
+docker compose up -d               # Start containers in detached mode (background).
 
-
-# if first time doesn work
-docker compose down -v --remove-orphans
-docker compose up -d     # restart clean with init.sql
-
-# if second time desnt wokk
-docker compose down -v --remove-orphans
-docker compose build --no-cache
-docker compose up -d
+# For subsequent runs (clean restart each time):
+docker compose down -v  # Stop and remove containers, delete associated volumes (-v)
+docker compose up -d                      # Start fresh containers again, including executing initialization scripts like init.sql.
