@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.db import get_db
-from app.models import Variable, VariableVersion
-from app.schemas import VariableCreate, VariableUpdate, VariableResponse
+from db import get_db
+from models import Variable, VariableVersion
+from schemas import VariableCreate, VariableUpdate, VariableResponse
 from sqlalchemy import text, func
 from pydantic import BaseModel
 from typing import List

@@ -1,45 +1,62 @@
 Tobias/
 │
-├── backend/                             # FastAPI backend
-│   │
-│   ├── app/                             # Core backend logic
-│   │   ├── __init__.py
-│   │   ├── api/                         # API routes
+├── backend/                         # Backend-related source code and dependencies
+│   ├── app/                         # FastAPI core application
+│   │   ├── __init__.py              # Marks this folder as a Python package
+│   │   ├── main.py                  # Main FastAPI app entry point (creates and runs the application instance)
+│   │   │
+│   │   ├── core/                    # Application core settings and utilities
+│   │   │   ├── config.py            # Centralized settings management (e.g., pydantic BaseSettings)
+│   │   │   ├── security.py          # Authentication, authorization, JWT token logic
+│   │   │   ├── exceptions.py        # Custom exception handlers
+│   │   │   └── dependencies.py      # Dependency injection (for DB sessions, auth, etc.)
+│   │   │
+│   │   ├── routers/                 # API route groupings (modularized endpoints)
+│   │   │   └── v1/                  # Versioned API (v1 endpoints)
+│   │   │       ├── __init__.py
+│   │   │       └── example_router.py # Example API router
+│   │   │
+│   │   ├── models/                  # SQLAlchemy ORM models (tables representations)
 │   │   │   ├── __init__.py
-│   │   │   └── v1/                      # Versioned endpoints
-│   │   ├── models/                      # SQLAlchemy models
-│   │   ├── schemas/                     # Pydantic schemas
-│   │   ├── services/                    # Business logic
-│   │   ├── db/                          # DB sessions, connections
-│   │   ├── utils/                       # Utility functions
-│   │   ├── config/                      # Environment & settings
-│   │   └── tests/                       # Unit & integration tests
+│   │   │   └── user.py              # Example database model
+│   │   │
+│   │   ├── schemas/                 # Pydantic schemas for request/response validation
+│   │   │   ├── __init__.py
+│   │   │   └── user.py              # Example schema (input/output)
+│   │   │
+│   │   ├── services/                # Business logic layer (processing beyond DB & APIs)
+│   │   │   ├── __init__.py
+│   │   │   └── user_service.py      # Example service (fetching users, business rules)
+│   │   │
+│   │   ├── db/                      # Database management (connections, sessions)
+│   │   │   ├── __init__.py
+│   │   │   ├── session.py           # DB session management
+│   │   │   └── base.py              # SQLAlchemy Base class if needed
+│   │   │
+│   │   ├── utils/                   # Utility/helper functions (e.g., password hashing, date converters)
+│   │   │   ├── __init__.py
+│   │   │   └── hashing.py           # Example utility file
+│   │   │
+│   │   └── tests/                   # Tests (unit, integration, e2e)
+│   │       ├── unit/                # Unit tests (small isolated tests)
+│   │       ├── integration/         # Integration tests (multiple components working together)
+│   │       └── e2e/                 # End-to-end tests (simulate full workflows)
 │   │
-│   ├── main.py                          # App entry point
-│   └── requirements.txt                 # Backend dependencies
+│   ├── config/                          # Config directory specific to backend
+│   │   └── config.yaml                  # Main editable backend config
+│   │
+│   ├── requirements.txt             # Python dependencies for backend
+│   └── .gitignore                   # Files/folders to be ignored by Git (e.g., __pycache__, *.pyc, .env)
 │
-├── frontend/                            # Web frontend (e.g., React)
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── assets/
-│   ├── tests/
-│   ├── package.json
-│   └── vite.config.js                   # Or webpack.config.js
+├── infrastructure/                  # DevOps, Deployment, and Infrastructure code
+│   ├── docker/                      # Docker and Docker Compose configurations
+│   │   ├── backend/                 # Backend Dockerfile and setup
+│   │   └── frontend/                # Frontend Dockerfile and setup (optional if you build UI)
+│   │
+│   └── testdata/                    # Synthetic data for testing & local development
+│       ├── generators/              # Data generation scripts (faker, random datasets)
+│       └── samples/                 # Example static sample datasets
 │
-├── infrastructure/
-│   ├── docker/                          # Docker & Compose files
-│   │   ├── backend/
-│   │   ├── frontend/
-│   │   └── docker-compose.yml
-│   ├── testdata/                        # Synthetic data generators & samples
-│   │   ├── generators/
-│   │   └── samples/
-│   └── scripts/                         # Bash/Python scripts (init, deploy)
 │
-├── .env.example                         # Environment variable template
-├── .gitignore
-└── README.md                            # System documentation
-
+├── Structure.txt                    # This structure explanation file
+└── .gitignore                        # Root-level Git ignore settings

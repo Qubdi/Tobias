@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import uvicorn
-from app.api.v1.variables import router as variables_router  # Import your variables router
-from app.db.session import engine, Base  # your database engine
+from routers.v1.variables import  router as variables_router  # Import your variables router
+from db.session import engine, Base  # your database engine
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
@@ -16,7 +16,7 @@ app = FastAPI(
 # Register the variables router under versioned API path
 app.include_router(
     variables_router,
-    prefix="/api/v1",        # Full path will be /api/v1/variables
+    prefix="/routers/v1",        # Full path will be /routers/v1/variables
     tags=["Variables"]       # Swagger UI grouping
 )
 
@@ -28,7 +28,6 @@ def root():
 # Proper entry point check
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-
 
 # python Backend/main.py
 
