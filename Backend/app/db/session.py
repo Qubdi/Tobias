@@ -3,8 +3,8 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from contextlib import contextmanager
 
 # SQL Server connection string using Windows Authentication
-# DATABASE_URL = "sqlite:///C:/Users/Anri/Desktop/Qubdi/Qubdi-Tobias/VaraiblesTest.sqlite"
-DATABASE_URL = "sqlite:///C:/Users/atvalabeishvili/Desktop/Projects/Qubdi-Tobias/VaraiblesTest.sqlite"
+DATABASE_URL = "sqlite:///C:/Users/Anri/Desktop/Qubdi/Qubdi-Tobias/VaraiblesTest.sqlite"
+# DATABASE_URL = "sqlite:///C:/Users/atvalabeishvili/Desktop/Projects/Qubdi-Tobias/VaraiblesTest.sqlite"
 
 
 # Create SQLAlchemy engine
