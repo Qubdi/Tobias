@@ -16,18 +16,10 @@ Tobias/
 │   │   └── tests/                       # Unit & integration tests
 │   │
 │   ├── main.py                          # App entry point
-│   └── requirements.txt                 # Backend dependencies
+│   ├── requirements.txt                 # Backend dependencies
+│   ├── .env                             # Environment variable template
+│   └── .gitignore
 │
-├── frontend/                            # Web frontend (e.g., React)
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── assets/
-│   ├── tests/
-│   ├── package.json
-│   └── vite.config.js                   # Or webpack.config.js
 │
 ├── infrastructure/
 │   ├── docker/                          # Docker & Compose files
@@ -39,7 +31,8 @@ Tobias/
 │   │   └── samples/
 │   └── scripts/                         # Bash/Python scripts (init, deploy)
 │
-├── .env.example                         # Environment variable template
-├── .gitignore
-└── README.md                            # System documentation
+│
+├── Structure.txt
+└── .gitignore
+
 
