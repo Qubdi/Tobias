@@ -20,7 +20,7 @@ RUN apt-get update
 RUN ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
 
 # Copy init script
-COPY ./init/mssql/01-init.sh /init/01-init.sh
+COPY init/mssql/01-init.sh /init/01-init.sh
 
 # Fix line endings and make the script executable
 RUN dos2unix /init/01-init.sh

@@ -46,27 +46,17 @@ Tobias/
 │   │   └── config.yaml                  # Main editable backend config
 │   │
 │   ├── requirements.txt             # Python dependencies for backend
-│   └── .gitignore                    # Files/folders to be ignored by Git (e.g., __pycache__, *.pyc, .env)
+│   └── .gitignore                   # Files/folders to be ignored by Git (e.g., __pycache__, *.pyc, .env)
 │
 ├── infrastructure/                  # DevOps, Deployment, and Infrastructure code
 │   ├── docker/                      # Docker and Docker Compose configurations
 │   │   ├── backend/                 # Backend Dockerfile and setup
-│   │   ├── frontend/                # Frontend Dockerfile and setup (optional if you build UI)
-│   │   └── docker-compose.yml       # Multi-service orchestration (backend, frontend, db)
+│   │   └── frontend/                # Frontend Dockerfile and setup (optional if you build UI)
 │   │
-│   ├── monitoring/                  # Monitoring stack (Prometheus, Grafana configs, alerting rules)
-│   │   └── prometheus.yml           # Example Prometheus config file (if needed)
-│   │
-│   ├── nginx/                       # Reverse proxy, SSL termination (optional)
-│   │   └── default.conf             # NGINX configuration template
-│   │
-│   ├── testdata/                    # Synthetic data for testing & local development
-│   │   ├── generators/              # Data generation scripts (faker, random datasets)
-│   │   └── samples/                 # Example static sample datasets
-│   │
-│   └── scripts/                     # Automation scripts (bash, python scripts for setup, deploy, migrate)
-│       ├── init_db.sh               # Example script to initialize the database
-│       └── deploy.sh                # Example deployment script
+│   └── testdata/                    # Synthetic data for testing & local development
+│       ├── generators/              # Data generation scripts (faker, random datasets)
+│       └── samples/                 # Example static sample datasets
+│
 │
 ├── Structure.txt                    # This structure explanation file
 └── .gitignore                        # Root-level Git ignore settings
