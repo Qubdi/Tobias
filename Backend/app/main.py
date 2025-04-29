@@ -16,7 +16,7 @@ app = FastAPI(
 # Register the variables router under versioned API path
 app.include_router(
     variables_router,
-    prefix="/api/v1",        # Full path will be /api/v1/variables
+    prefix="/routers/v1",        # Full path will be /routers/v1/variables
     tags=["Variables"]       # Swagger UI grouping
 )
 
