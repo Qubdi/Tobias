@@ -11,7 +11,7 @@ Tobias/
 │   │   │   ├── exceptions.py        # Custom exception handlers
 │   │   │   └── dependencies.py      # Dependency injection (for DB sessions, auth, etc.)
 │   │   │
-│   │   ├── routers/                 # API route groupings (modularized endpoints)
+│   │   ├── api/                 # API route groupings (modularized endpoints)
 │   │   │   └── v1/                  # Versioned API (v1 endpoints)
 │   │   │       ├── __init__.py
 │   │   │       └── example_router.py # Example API router
