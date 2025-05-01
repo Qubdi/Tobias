@@ -1,3 +1,8 @@
+"""
+Database models for the Credit Scoring Engine.
+This module defines the SQLAlchemy models for variables, versions, results, and executions.
+"""
+
 from sqlalchemy import (
     Column, Integer, String, Text, DateTime, ForeignKey, Boolean, 
     UniqueConstraint, Enum as SQLEnum, JSON
@@ -10,6 +15,7 @@ from typing import List, Optional
 from schemas.variables import CalculationType
 
 # Create the declarative base class for all models
+# This is used as the base class for all SQLAlchemy models in the application
 Base = declarative_base()
 
 
@@ -37,25 +43,34 @@ class Variable(Base):
 
     # Primary key with index for faster lookups
     id: Mapped[int] = Column(Integer, primary_key=True, index=True)
+    
     # Unique name constraint ensures no duplicate variable names
     name: Mapped[str] = Column(String(255), unique=True, nullable=False)
-    # Optional description field
+    
+    # Optional description field for documenting the variable's purpose
     description: Mapped[Optional[str]] = Column(Text, nullable=True)
+    
     # Calculation type using SQL enum for type safety
+    # This determines how the variable is calculated (live, dwh, or hybrid)
     calculation_type: Mapped[str] = Column(
         SQLEnum(CalculationType, name='calculation_type_enum'),
         nullable=False
     )
-    # Soft delete flag
+    
+    # Soft delete flag - allows for logical deletion without removing data
     is_active: Mapped[bool] = Column(Boolean, default=True)
-    # User tracking fields
+    
+    # Audit fields for tracking creation and updates
     created_by: Mapped[Optional[str]] = Column(String(255), nullable=True)
     updated_by: Mapped[Optional[str]] = Column(String(255), nullable=True)
     created_at: Mapped[datetime] = Column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Flexible metadata storage for future extensibility
     additional_metadata: Mapped[Optional[dict]] = Column(JSON, nullable=True)
 
     # Relationships with cascade delete for referential integrity
+    # When a variable is deleted, all its versions and results are also deleted
     versions: Mapped[List['VariableVersion']] = relationship(
         'VariableVersion', 
         back_populates='variable',
@@ -86,32 +101,39 @@ class VariableVersion(Base):
     """
     __tablename__ = 'variable_versions'
 
-    # Primary key
+    # Primary key with index for faster lookups
     id: Mapped[int] = Column(Integer, primary_key=True, index=True)
-    # Foreign key with cascade delete
+    
+    # Foreign key with cascade delete - when variable is deleted, versions are deleted
     variable_id: Mapped[int] = Column(Integer, ForeignKey('variables.id', ondelete='CASCADE'), nullable=False)
+    
     # Version number for tracking changes
     version: Mapped[str] = Column(String(50), nullable=False)
-    # The actual SQL script
+    
+    # The actual SQL script that performs the calculation
     code: Mapped[str] = Column(Text, nullable=False)
-    # Optional fields for tracking changes
+    
+    # Optional fields for tracking changes and auditing
     change_reason: Optional[str] = Column(Text)
     created_by: Mapped[Optional[str]] = Column(String(255), nullable=True)
     created_at: Mapped[datetime] = Column(DateTime(timezone=True), server_default=func.now())
     is_active: Mapped[bool] = Column(Boolean, default=True)
     additional_metadata: Mapped[Optional[dict]] = Column(JSON, nullable=True)
 
-    # Relationship back to parent variable
+    # Relationships
+    # Back-reference to parent variable
     variable: Mapped["Variable"] = relationship('Variable', back_populates='versions')
+    
+    # Relationship to executions with cascade delete
     executions: Mapped[List['VariableExecution']] = relationship(
         'VariableExecution', 
         back_populates='version',
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan"  # Delete executions when version is deleted
     )
 
     # Ensure unique version numbers per variable
     __table_args__ = (
-        UniqueConstraint('variable_id', 'version', name='uq_variable_version'),
+        UniqueConstraint('variable_id', 'version', name='uix_variable_version'),
     )
 
 
@@ -132,30 +154,37 @@ class VariableResult(Base):
     """
     __tablename__ = 'variable_results'
 
-    # Primary key
+    # Primary key with index for faster lookups
     id: Mapped[int] = Column(Integer, primary_key=True, index=True)
-    # Application identifier
+    
+    # Application identifier - links to the application being scored
     application_id: str = Column(String(50), nullable=False)
-    # Foreign key with cascade delete
+    
+    # Foreign key with cascade delete - when variable is deleted, results are deleted
     variable_id: Mapped[int] = Column(Integer, ForeignKey('variables.id', ondelete='CASCADE'), nullable=False)
-    # The calculated value
+    
+    # The calculated value stored as JSON for flexibility
     result: Mapped[dict] = Column(JSON, nullable=False)
-    # User tracking fields
+    
+    # Audit fields
     created_by: Mapped[Optional[str]] = Column(String(255), nullable=True)
     created_at: Mapped[datetime] = Column(DateTime(timezone=True), server_default=func.now())
     additional_metadata: Mapped[Optional[dict]] = Column(JSON, nullable=True)
 
-    # Relationship back to parent variable
+    # Relationships
+    # Back-reference to parent variable
     variable: Mapped["Variable"] = relationship('Variable', back_populates='results')
+    
+    # Relationship to executions with cascade delete
     executions: Mapped[List['VariableExecution']] = relationship(
         'VariableExecution', 
         back_populates='result',
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan"  # Delete executions when result is deleted
     )
 
     # Ensure unique results per application and variable
     __table_args__ = (
-        UniqueConstraint('application_id', 'variable_id', name='uq_app_variable'),
+        UniqueConstraint('application_id', 'variable_id', name='uix_application_variable'),
     )
 
 
@@ -176,13 +205,16 @@ class VariableExecution(Base):
     """
     __tablename__ = 'variable_executions'
 
-    # Primary key
+    # Primary key with index for faster lookups
     id: Mapped[int] = Column(Integer, primary_key=True, index=True)
-    # Application identifier
+    
+    # Application identifier - links to the application being scored
     application_id: str = Column(String(50), nullable=False)
+    
     # Optional foreign key (allows NULL for failed executions)
     variable_id: Optional[int] = Column(Integer, ForeignKey('variables.id', ondelete='SET NULL'))
-    # User tracking fields
+    
+    # Audit fields
     executed_by: Mapped[Optional[str]] = Column(String(255), nullable=True)
     result_id: Mapped[int] = Column(Integer, ForeignKey('variable_results.id'), nullable=False)
     executed_at: Mapped[datetime] = Column(DateTime(timezone=True), server_default=func.now())
