@@ -1,18 +1,12 @@
-"""
-Database models for the Credit Scoring Engine.
-This module defines the SQLAlchemy models for variables, versions, results, and executions.
-"""
-
-from sqlalchemy import (
-    Column, Integer, String, Text, DateTime, ForeignKey, Boolean, 
-    UniqueConstraint, Enum as SQLEnum, JSON
-)
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
+from sqlalchemy import   UniqueConstraint, Enum as SQLEnum, JSON
 from sqlalchemy.orm import relationship, declarative_base, Mapped
 from sqlalchemy.sql import func
 from datetime import datetime
 from typing import List, Optional
 
 from schemas.variables import CalculationType
+
 
 # Create the declarative base class for all models
 # This is used as the base class for all SQLAlchemy models in the application

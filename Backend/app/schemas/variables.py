@@ -1,8 +1,3 @@
-"""
-Pydantic schemas for the Credit Scoring Engine API.
-This module defines the data validation schemas for variable operations and responses.
-"""
-
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 from datetime import datetime

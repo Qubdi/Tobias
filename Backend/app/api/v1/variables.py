@@ -1,24 +1,13 @@
-"""
-API routes for managing credit scoring variables.
-This module defines the REST API endpoints for variable operations.
-"""
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import text, func
 from typing import List
 from datetime import datetime, timezone
-
 from db import get_db
 from models import Variable, VariableVersion
-from schemas import (
-    VariableCreate,
-    VariableUpdate,
-    VariableResponse,
-    VariableCalcRequest,
-    ErrorResponse,
-    CalculationType
-)
+from schemas import (VariableCreate,VariableUpdate,VariableResponse,VariableCalcRequest,ErrorResponse,CalculationType)
+
+
 
 # Initialize the router with common configurations
 router = APIRouter(
@@ -30,15 +19,13 @@ router = APIRouter(
     }
 )
 
-@router.post(
-    "/",
-    response_model=VariableResponse,
-    status_code=status.HTTP_201_CREATED,
-    responses={
+
+
+
+@router.post("/", response_model=VariableResponse, status_code=status.HTTP_201_CREATED, responses={
         status.HTTP_201_CREATED: {"description": "Variable created successfully"},
         status.HTTP_400_BAD_REQUEST: {"description": "Variable already exists"},
-    }
-)
+    })
 async def create_variable(payload: VariableCreate, db: Session = Depends(get_db)):
     """
     Create a new credit scoring variable.
@@ -68,6 +55,7 @@ async def create_variable(payload: VariableCreate, db: Session = Depends(get_db)
             detail="Variable with this name already exists"
         )
 
+
     # Create the Variable object
     var = Variable(
         name=payload.name,
@@ -92,13 +80,11 @@ async def create_variable(payload: VariableCreate, db: Session = Depends(get_db)
     db.refresh(var)
     return var
 
-@router.get(
-    "/",
-    response_model=List[VariableResponse],
-    responses={
+
+
+@router.get("/", response_model=List[VariableResponse], responses={
         status.HTTP_200_OK: {"description": "List of active variables retrieved successfully"}
-    }
-)
+    })
 async def get_all_variables(db: Session = Depends(get_db)):
     """
     Get all active credit scoring variables.
@@ -114,14 +100,12 @@ async def get_all_variables(db: Session = Depends(get_db)):
     """
     return db.query(Variable).filter_by(is_active=True).all()
 
-@router.get(
-    "/{variable_id}",
-    response_model=VariableResponse,
-    responses={
+
+
+@router.get("/{variable_id}", response_model=VariableResponse, responses={
         status.HTTP_200_OK: {"description": "Variable retrieved successfully"},
         status.HTTP_404_NOT_FOUND: {"description": "Variable not found"}
-    }
-)
+    })
 async def get_variable(variable_id: int, db: Session = Depends(get_db)):
     """
     Get a specific credit scoring variable by ID.
@@ -147,19 +131,13 @@ async def get_variable(variable_id: int, db: Session = Depends(get_db)):
         )
     return var
 
-@router.put(
-    "/{variable_id}",
-    response_model=VariableResponse,
-    responses={
+
+
+@router.put("/{variable_id}", response_model=VariableResponse, responses={
         status.HTTP_200_OK: {"description": "Variable updated successfully"},
         status.HTTP_404_NOT_FOUND: {"description": "Variable not found"}
-    }
-)
-async def update_variable(
-    variable_id: int,
-    payload: VariableUpdate,
-    db: Session = Depends(get_db)
-):
+    })
+async def update_variable(variable_id: int,payload: VariableUpdate,db: Session = Depends(get_db)):
     """
     Update a credit scoring variable.
     
@@ -206,15 +184,12 @@ async def update_variable(
     db.commit()
     return var
 
-@router.delete(
-    "/{variable_id}",
-    response_model=dict,
-    status_code=status.HTTP_200_OK,
-    responses={
+
+
+@router.delete("/{variable_id}", response_model=dict, status_code=status.HTTP_200_OK, responses={
         status.HTTP_200_OK: {"description": "Variable deleted successfully"},
         status.HTTP_404_NOT_FOUND: {"description": "Variable not found"}
-    }
-)
+    })
 async def delete_variable(variable_id: int, db: Session = Depends(get_db)):
     """
     Delete a credit scoring variable.
@@ -248,18 +223,14 @@ async def delete_variable(variable_id: int, db: Session = Depends(get_db)):
         "variable_id": variable_id
     }
 
-@router.post(
-    "/calculate",
-    responses={
+
+
+@router.post("/calculate",responses={
         status.HTTP_200_OK: {"description": "Variables calculated successfully"},
         status.HTTP_400_BAD_REQUEST: {"description": "Invalid request"},
         status.HTTP_404_NOT_FOUND: {"description": "No variable versions found"}
-    }
-)
-async def calculate_variables(
-    payload: VariableCalcRequest,
-    db: Session = Depends(get_db)
-):
+    })
+async def calculate_variables(payload: VariableCalcRequest,db: Session = Depends(get_db)):
     """
     Calculate variables for an application.
     
@@ -360,3 +331,4 @@ async def calculate_variables(
         "application_id": payload.app_id,
         "calculated_variables": [v.variable_id for v in latest_versions]
     }
+

@@ -1,8 +1,3 @@
-"""
-Database session management module.
-This module handles database connections, session creation, and provides utilities for database access.
-"""
-
 # Import SQLAlchemy components and context manager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -80,3 +75,4 @@ def get_db_context():
         yield db
     finally:
         db.close()
+
