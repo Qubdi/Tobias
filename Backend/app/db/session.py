@@ -1,11 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from contextlib import contextmanager
+from models.variables import Base
 
 # SQL Server connection string using Windows Authentication
-DATABASE_URL = "sqlite:///C:/Users/Anri/Desktop/Qubdi/Qubdi-Tobias/VaraiblesTest.sqlite"
-# DATABASE_URL = "sqlite:///C:/Users/atvalabeishvili/Desktop/Projects/Qubdi-Tobias/VaraiblesTest.sqlite"
-
+# DATABASE_URL = "sqlite:///C:/Users/Anri/Desktop/Qubdi/Qubdi-Tobias/VaraiblesTest.sqlite"
+DATABASE_URL = "sqlite:///C:/Users/atvalabeishvili/Desktop/Projects/Qubdi-Tobias/VaraiblesTest.sqlite"
 
 # Create SQLAlchemy engine
 engine = create_engine(
@@ -16,6 +16,10 @@ engine = create_engine(
 
 # Create session factory
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
+
+# Drop and recreate all tables
+Base.metadata.drop_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 # Declare base for models
 Base = declarative_base()

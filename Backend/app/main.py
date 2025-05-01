@@ -1,33 +1,51 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from routers.v1.variables import  router as variables_router  # Import your variables router
-from db.session import engine, Base  # your database engine
+from api.v1 import router as variables_router  # Renamed to be more specific
+from db.session import engine, Base
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
 
-
 # Initialize FastAPI app with metadata
 app = FastAPI(
-    title="Credit Scoring Engine API",  # App title for Swagger UI
-    version="1.0"                        # API version
+    title="Credit Scoring Engine API",
+    description="API for managing and calculating credit scoring variables",
+    version="1.0.0",
+    docs_url="/api/docs",  # Removed /api prefix
+    redoc_url="/api/redoc",  # Removed /api prefix
+    openapi_url="/api/openapi.json"  # Removed /api prefix
 )
 
-# Register the variables router under versioned API path
-app.include_router(
-    variables_router,
-    prefix="/routers/v1",        # Full path will be /routers/v1/variables
-    tags=["Variables"]       # Swagger UI grouping
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Root health check / welcome endpoint
-@app.get("/")
-def root():
-    return {"message": "Welcome to the Credit Scoring Engine API!"}
+# Include variables router
+app.include_router(variables_router)
 
-# Proper entry point check
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "api_docs": "/api/docs"
+    }
+
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info"
+    )
 
 # python Backend/main.py
 

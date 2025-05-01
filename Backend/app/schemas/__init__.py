@@ -4,6 +4,9 @@ from .variables import (
     VariableUpdate,
     VariableResponse,
     VariableResultResponse,
+    VariableCalcRequest,
+    ErrorResponse,
+    CalculationType
 )
 
 
