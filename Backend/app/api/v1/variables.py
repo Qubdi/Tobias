@@ -158,10 +158,10 @@ async def update_variable(
 
 @router.delete(
     "/{variable_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
     responses={
-        status.HTTP_200_OK: {"description": "Variable delete successfully"},
-        status.HTTP_204_NO_CONTENT: {"description": "Variable marked as inactive"},
+        status.HTTP_200_OK: {"description": "Variable deleted successfully"},
         status.HTTP_404_NOT_FOUND: {"description": "Variable not found"}
     }
 )
@@ -180,6 +180,12 @@ async def delete_variable(variable_id: int, db: Session = Depends(get_db)):
 
     var.is_active = False
     db.commit()
+    
+    return {
+        "status": "success",
+        "message": "Variable deleted successfully",
+        "variable_id": variable_id
+    }
 
 @router.post(
     "/calculate",
