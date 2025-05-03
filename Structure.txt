@@ -1,3 +1,4 @@
+
 Tobias/
 │
 ├── backend/                         # Backend-related source code and dependencies
@@ -11,7 +12,7 @@ Tobias/
 │   │   │   ├── exceptions.py        # Custom exception handlers
 │   │   │   └── dependencies.py      # Dependency injection (for DB sessions, auth, etc.)
 │   │   │
-│   │   ├── api/                 # API route groupings (modularized endpoints)
+│   │   ├── api/                     # API route groupings (modularized endpoints)
 │   │   │   └── v1/                  # Versioned API (v1 endpoints)
 │   │   │       ├── __init__.py
 │   │   │       └── example_router.py # Example API router
@@ -42,11 +43,73 @@ Tobias/
 │   │       ├── integration/         # Integration tests (multiple components working together)
 │   │       └── e2e/                 # End-to-end tests (simulate full workflows)
 │   │
-│   ├── config/                          # Config directory specific to backend
-│   │   └── config.yaml                  # Main editable backend config
+│   ├── config/                      # Config directory specific to backend
+│   │   └── config.yaml              # Main editable backend config
 │   │
 │   ├── requirements.txt             # Python dependencies for backend
 │   └── .gitignore                   # Files/folders to be ignored by Git (e.g., __pycache__, *.pyc, .env)
+│
+├── frontend/                        # Frontend source code (React + Vite + Tailwind)
+│   ├── public/                         
+│   │   └── index.html               # Main HTML template into which the React app is injected.
+│   │                                # It includes a <div id="root"> element where React mounts the app.
+│   │
+│   ├── src/                            
+│   │   ├── assets/                 
+│   │   │   ├── images/              # Images and illustrations (e.g., JPG, PNG, SVG)
+│   │   │   ├── fonts/               # Custom fonts used across the app
+│   │   │   └── icons/               # Icon files such as SVGs for buttons, menus, etc.
+│   │   │
+│   │   ├── components/              
+│   │   │   └── Button.tsx           # Example reusable button component.
+│   │   │
+│   │   ├── features/                
+│   │   │   └── user/
+│   │   │       ├── UserList.tsx     # UI component to render a list of users.
+│   │   │       ├── userAPI.ts       # API utility functions (e.g., fetchUsers, createUser).
+│   │   │       └── userSlice.ts     # Redux slice for managing user state (loading, error, data).
+│   │   │
+│   │   ├── layouts/                 
+│   │   │   └── MainLayout.tsx       # Main layout that wraps pages with navigation or headers.
+│   │   │
+│   │   ├── pages/                   
+│   │   │   ├── Home.tsx             # Home page component (shown after login).
+│   │   │   └── Login.tsx            # Login page with form and authentication logic.
+│   │   │
+│   │   ├── routes/                  
+│   │   │   └── AppRoutes.tsx        # Entry point for routing — defines path-to-page mappings.
+│   │   │
+│   │   ├── services/                
+│   │   │   └── api.ts               # Axios instance with base URL and interceptors.
+│   │   │
+│   │   ├── store/                   
+│   │   │   ├── index.ts             # Redux store configuration and middleware.
+│   │   │   └── rootReducer.ts       # Combines multiple slices into a single reducer.
+│   │   │
+│   │   ├── hooks/                   
+│   │   │   └── useAuth.ts           # Example hook for checking authentication status.
+│   │   │
+│   │   ├── utils/                   
+│   │   │   └── dateUtils.ts         # Functions for working with date and time.
+│   │   │
+│   │   ├── constants/               
+│   │   │   └── roles.ts             # User role definitions (e.g., ADMIN, USER).
+│   │   │
+│   │   ├── i18n/                    
+│   │   │   └── en.json              # English language key-value translations.
+│   │   │                            # (Add ka.json, ru.json etc. for more languages.)
+│   │   │
+│   │   ├── App.tsx                  # Root application component. Assembles routes, layouts, and providers.
+│   │   ├── index.tsx                # Application entry point. Renders the React app into the root DOM node.
+│   │   └── vite-env.d.ts            # Vite-specific TypeScript definitions for environment typing.
+│   │
+│   ├── .env                         # Environment variables (e.g., API base URL, client secrets).
+│   ├── tsconfig.json                # TypeScript compiler configuration.
+│   ├── vite.config.ts               # Vite bundler configuration file (or webpack.config.js if using Webpack).
+│   ├── package.json                 # Project metadata, dependencies, and npm/yarn scripts.
+│   ├── tailwind.config.js           # TailwindCSS configuration (if Tailwind is used for styling).
+│   ├── postcss.config.js            # PostCSS plugins and Tailwind integration setup.
+│   └── .gitignore                   # Files and directories to be excluded from Git tracking (e.g., node_modules/, .env).
 │
 ├── infrastructure/                  # DevOps, Deployment, and Infrastructure code
 │   ├── docker/                      # Docker and Docker Compose configurations
@@ -57,6 +120,5 @@ Tobias/
 │       ├── generators/              # Data generation scripts (faker, random datasets)
 │       └── samples/                 # Example static sample datasets
 │
-│
 ├── Structure.txt                    # This structure explanation file
-└── .gitignore                        # Root-level Git ignore settings
+└── .gitignore                       # Root-level Git ignore settings
